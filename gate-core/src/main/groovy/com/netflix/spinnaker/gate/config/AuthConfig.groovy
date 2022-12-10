@@ -73,12 +73,16 @@ class AuthConfig {
   @Value('${fiat.session-filter.enabled:true}')
   boolean fiatSessionFilterEnabled
 
+  @Value('${security.webhooks.default-auth-enabled:false}')
+  boolean webhookDefaultAuthEnabled
+
   void configure(HttpSecurity http) throws Exception {
     // @formatter:off
     http
       .requestMatcher(requestMatcherProvider.requestMatcher())
       .authorizeRequests()
-        .antMatchers('/**/favicon.ico').permitAll()
+        .antMatchers("/error").permitAll()
+        .antMatchers('/favicon.ico').permitAll()
         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
         .antMatchers(PermissionRevokingLogoutSuccessHandler.LOGGED_OUT_URL).permitAll()
         .antMatchers('/auth/user').permitAll()
@@ -95,6 +99,10 @@ class AuthConfig {
         permissionEvaluator)
 
       http.addFilterBefore(fiatSessionFilter, AnonymousAuthenticationFilter.class)
+    }
+
+    if (webhookDefaultAuthEnabled) {
+      http.authorizeRequests().antMatchers(HttpMethod.POST, '/webhooks/**').authenticated()
     }
 
     http.logout()
