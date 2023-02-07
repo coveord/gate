@@ -24,8 +24,13 @@ import com.netflix.spinnaker.gate.interceptors.RequestIdInterceptor
 import com.netflix.spinnaker.gate.retrofit.UpstreamBadRequest
 import com.netflix.spinnaker.kork.dynamicconfig.DynamicConfigService
 import com.netflix.spinnaker.kork.web.interceptors.MetricsInterceptor
+import org.apache.catalina.connector.Connector
+import org.apache.coyote.http11.AbstractHttp11Protocol
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory
+import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -84,6 +89,25 @@ public class GateWebConfig implements WebMvcConfigurer {
   @Bean
   UpstreamBadRequestExceptionHandler upstreamBadRequestExceptionHandler() {
     return new UpstreamBadRequestExceptionHandler()
+  }
+
+  @Bean
+  WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainerCustomizer() {
+    return new WebServerFactoryCustomizer<TomcatServletWebServerFactory>() {
+      @Override
+      void customize(TomcatServletWebServerFactory factory) {
+        factory.addConnectorCustomizers(new TomcatConnectorCustomizer() {
+          @Override
+          void customize(Connector connector) {
+            AbstractHttp11Protocol<?> httpHandler = ((AbstractHttp11Protocol<?>) connector.getProtocolHandler())
+            httpHandler.setUseServerCipherSuitesOrder(true)
+            httpHandler.setSSLProtocol("TLSv1.2")
+            httpHandler.setSSLHonorCipherOrder(true)
+            httpHandler.setCiphers("TLS_RSA_WITH_AES_256_GCM_SHA384")
+          }
+        })
+      }
+    }
   }
 
   @ControllerAdvice
