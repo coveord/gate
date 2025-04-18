@@ -273,7 +273,7 @@ class PipelineController {
     pipelineService.restartPipelineStage(id, stageId, context)
   }
 
-  @ApiOperation(value = "Ignore the failure of a stage")
+  @Operation(summary = "Ignore the failure of a stage")
   @PutMapping("/{id}/stages/{stageId}/ignoreFailure")
   Map ignoreStageFailure(@PathVariable("id") String id, @PathVariable("stageId") String stageId, @RequestBody Map context) {
     pipelineService.ignorePipelineStageFailure(id, stageId, context)
