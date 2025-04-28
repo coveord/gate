@@ -117,7 +117,7 @@ public interface OrcaService {
 
   @Headers("Accept: application/json")
   @PUT("/pipelines/{executionId}/stages/{stageId}/ignoreFailure")
-  Map ignorePipelineStageFailure(
+  Call<Map> ignorePipelineStageFailure(
       @Path("executionId") String executionId,
       @Path("stageId") String stageId,
       @Body Map ignoreFailureDetails);
