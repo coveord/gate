@@ -202,7 +202,7 @@ class PipelineService {
 
   Map ignorePipelineStageFailure(String executionId, String stageId, Map context) {
     setApplicationForExecution(executionId)
-    orcaServiceSelector.select().ignorePipelineStageFailure(executionId, stageId, context)
+    Retrofit2SyncCall.execute(orcaServiceSelector.select().ignorePipelineStageFailure(executionId, stageId, context))
   }
 
   Map evaluateExpressionForExecution(String executionId, String pipelineExpression) {
